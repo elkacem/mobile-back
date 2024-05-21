@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BusinessController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -18,10 +19,25 @@ Route::group([
         Route::get('/list', [BusinessController::class, 'index'])->name('list');
         Route::get('/add', [BusinessController::class, 'create'])->name('add');
         Route::post('/add', [BusinessController::class, 'store'])->name('store');
-        Route::get('/edit/{id}', [BusinessController::class, 'edit'])->name('edit');
-        Route::post('/edit/{id}', [BusinessController::class, 'update'])->name('update');
+        Route::get('/{id}/edit', [BusinessController::class, 'edit'])->name('edit');
+        Route::put('/{id}/edit', [BusinessController::class, 'update'])->name('update');
         Route::get('/delete/{id}', [BusinessController::class, 'destroy'])->name('delete');
     });
+
+Route::group([
+    'prefix' => 'notification',
+],
+    function () {
+        Route::get('/list', [NotificationController::class, 'index'])->name('nlist');
+        Route::get('/add', [NotificationController::class, 'create'])->name('nadd');
+        Route::post('/add', [NotificationController::class, 'store'])->name('nstore');
+        Route::get('/{id}/edit', [NotificationController::class, 'edit'])->name('nedit');
+        Route::put('/{id}/edit', [NotificationController::class, 'update'])->name('nupdate');
+        Route::delete('/delete/{id}', [NotificationController::class, 'destroy'])->name('ndestroy');
+        Route::patch('/notifications/{id}/toggle', [NotificationController::class, 'toggleStatus'])->name('toggle');
+
+    });
+
 
 //Route::resource('businesses', BusinessController::class);
 Route::get('/subcategories/{category_id}', [BusinessController::class, 'getSubcategories']);

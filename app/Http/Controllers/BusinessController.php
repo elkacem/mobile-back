@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Business;
 use App\Http\Requests\StoreBusinessRequest;
 use App\Http\Requests\UpdateBusinessRequest;
@@ -99,140 +101,76 @@ class BusinessController extends Controller
      * Update the specified resource in storage.
      */
 
-//    public function update(Request $request, Business $id)
-//    {
-//        $request->validate([
-//            'name' => 'required|string|max:255',
-//            'slogan' => 'required|string|max:255',
-//            'category_id' => 'required|exists:categories,id',
-//            'subcategory_id' => 'required|exists:subcategories,id',
-//            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-//            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-//            'location' => 'required|string|max:255',
-//            'opening_time' => 'required|string|max:255',
-//            'working_days' => 'required|string|max:255',
-//            'contact' => 'required|string|max:255',
-//            'description' => 'nullable|string',
-//        ]);
-//
-//        if ($request->hasFile('image')) {
-//            // Handle image upload
-//            $imagePath = $request->file('image')->store('public/images');
-//            $id->image = str_replace('public/', '', $imagePath);
-//        }
-//
-//        if ($request->hasFile('logo')) {
-//            // Handle logo upload
-//            $logoPath = $request->file('logo')->store('public/logos');
-//            $id->logo = str_replace('public/', '', $logoPath);
-//        }
-//
-//        $id->update($request->except(['_token', '_method', 'image', 'logo']));
-//
-//        return redirect()->route('list')->with('success', 'Business updated successfully');
-//    }
-
-//    public function update(Request $request, Business $business)
-//    {
-//        $request->validate([
-//            'name' => 'required|string|max:255',
-//            'slogan' => 'required|string|max:255',
-//            'category_id' => 'required|exists:categories,id',
-//            'subcategory_id' => 'required|exists:subcategories,id',
-//            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-//            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-//            'location' => 'required|string|max:255',
-//            'opening_time' => 'required|string|max:255',
-//            'working_days' => 'required|string|max:255',
-//            'contact' => 'required|string|max:255',
-//            'description' => 'nullable|string',
-//        ]);
-//
-//        // Update business details
-//        $business->name = $request->name;
-//        $business->slogan = $request->slogan;
-////        $business->category_id = $request->category_id;
-//        $business->subcategory_id = $request->subcategory_id;
-//        $business->location = $request->location;
-//        $business->opening_time = $request->opening_time;
-//        $business->working_days = $request->working_days;
-//        $business->contact = $request->contact;
-//        $business->description = $request->description;
-//
-//        // Handle image upload
-//        if ($request->hasFile('image')) {
-//            $imagePath = $request->file('image')->store('public/images');
-//            $business->image = str_replace('public/', '', $imagePath);
-//        }
-//
-//        // Handle logo upload
-//        if ($request->hasFile('logo')) {
-//            $logoPath = $request->file('logo')->store('public/logos');
-//            $business->logo = str_replace('public/', '', $logoPath);
-//        }
-//
-////        dd($business);
-//        // Save changes
-//        $business->save();
-//
-//        return redirect()->route('list')->with('success', 'Business updated successfully');
-//    }
-
     public function update(Request $request, $id)
     {
-//        dd($request);
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'slogan' => 'required|string|max:255',
-            'subcategory_id' => 'required|exists:subcategories,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'location' => 'required|string|max:255',
-            'opening_time' => 'required|string|max:255',
-            'working_days' => 'required|string|max:255',
-            'contact' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
-
         $business = Business::findOrFail($id);
 
-        // Update business details
-        $business->name = $request->name;
-        $business->slogan = $request->slogan;
-        $business->subcategory_id = $request->subcategory_id; // Assuming you only have a subcategory
+        // Check if the request has a file before validating
+        if ($request->hasFile('image') || $request->hasFile('logo')) {
+            // Validate the request data if image or logo is present
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'slogan' => 'required|string|max:255',
+                'subcategory_id' => 'required|exists:subcategories,id',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'location' => 'nullable|string|max:255',
+                'opening_time' => 'nullable|string|max:255',
+                'working_days' => 'nullable|string|max:255',
+                'contact' => 'nullable|string|max:255',
+                'description' => 'nullable|string',
+            ]);
+        } else {
+            // If no file is present, validate without image and logo fields
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'slogan' => 'required|string|max:255',
+                'subcategory_id' => 'required|exists:subcategories,id',
+                'location' => 'nullable|string|max:255',
+                'opening_time' => 'nullable|string|max:255',
+                'working_days' => 'nullable|string|max:255',
+                'contact' => 'nullable|string|max:255',
+                'description' => 'nullable|string',
+            ]);
+        }
 
-        // Handle image upload
+//        dd($request->image);
+
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('public/images');
-            dd($imagePath);
-            $business->image = str_replace('public/', '', $imagePath);
+            if ($business->image) {
+                Storage::disk('public')->delete('images/'.$business->image);
+            }
+            $validated['image'] = $request->file('image')->store('images', 'public');
         }
 
-        // Handle logo upload
         if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('public/logos');
-            $business->logo = str_replace('public/', '', $logoPath);
+            if ($business->logo) {
+                Storage::disk('public')->delete('logos/'.$business->logo);
+            }
+            $validated['logo'] = $request->file('logo')->store('logos', 'public');
         }
 
-        $business->location = $request->location;
-        $business->opening_time = $request->opening_time;
-        $business->working_days = $request->working_days;
-        $business->contact = $request->contact;
-        $business->description = $request->description;
+        $filtered = array_filter($validated, function ($value) {
+            return !is_null($value);
+        });
 
-        // Save changes
-        $business->save();
+        $business->update($filtered);
+//        $business->update($validated);
 
         return redirect()->route('list')->with('success', 'Business updated successfully');
     }
 
-
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Business $business)
+
+    public function destroy($id)
     {
-        //
+        $business = Business::with('subcategory.category')->findOrFail($id);
+        // Delete the business record from the database
+        $business->delete();
+
+        return redirect()->route('list')->with('success', 'Business deleted with sucess!');
     }
 
     public function getSubcategories($category_id)
