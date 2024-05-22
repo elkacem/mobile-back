@@ -16,7 +16,8 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-body">
-                                <form action="{{ route('update', $business->id) }}"  method="POST">
+{{--                                <form action="{{ route('update', $business->id) }}"  method="POST">--}}
+                                <form action="{{ route('update', ['id' => $business->id]) }}"  method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
                                     @csrf
                                     @method('PUT')
                                     <div class="mb-3">

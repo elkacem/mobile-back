@@ -42,6 +42,7 @@ class BusinessController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+//        $request->validate([
             'name' => 'required',
             'slogan' => 'required',
             'subcategory_id' => 'required',
@@ -58,12 +59,23 @@ class BusinessController extends Controller
 
         // Handle image upload
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('images', 'public');
+            $file = $request->file('image');
+            $extension = $file->getClientOriginalExtension();
+            $filename = time().'.'.$extension;
+            $path = $file->storeAs('images', $filename, 'public');
+            $validated['image'] = $path;
+//            $validated['image'] = $request->file('image')->store('images', 'public');
         }
 
         // Handle logo upload
         if ($request->hasFile('logo')) {
-            $validated['logo'] = $request->file('logo')->store('logos', 'public');
+            $file = $request->file('logo');
+            $extension = $file->getClientOriginalExtension();
+            $filename = time().'.'.$extension;
+            $path = $file->storeAs('logos', $filename, 'public');
+            $validated['logo'] = $path;
+
+//            $validated['logo'] = $request->file('logo')->store('logos', 'public');
         }
 
 //        dd($validated);
@@ -103,61 +115,60 @@ class BusinessController extends Controller
 
     public function update(Request $request, $id)
     {
+        $validated = $request->validate([
+//        $request->validate([
+            'name' => 'required',
+            'slogan' => 'required',
+            'subcategory_id' => 'required',
+//            'image' => 'nullable|image',
+//            'logo' => 'nullable|image',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust validation rules for image
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust validation rules for logo
+            'location' => 'nullable|string',
+            'opening_time' => 'nullable|string',
+            'working_days' => 'nullable|string',
+            'contact' => 'nullable|string',
+            'description' => 'nullable|string',
+        ]);
+
         $business = Business::findOrFail($id);
 
-        // Check if the request has a file before validating
-        if ($request->hasFile('image') || $request->hasFile('logo')) {
-            // Validate the request data if image or logo is present
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'slogan' => 'required|string|max:255',
-                'subcategory_id' => 'required|exists:subcategories,id',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'location' => 'nullable|string|max:255',
-                'opening_time' => 'nullable|string|max:255',
-                'working_days' => 'nullable|string|max:255',
-                'contact' => 'nullable|string|max:255',
-                'description' => 'nullable|string',
-            ]);
-        } else {
-            // If no file is present, validate without image and logo fields
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'slogan' => 'required|string|max:255',
-                'subcategory_id' => 'required|exists:subcategories,id',
-                'location' => 'nullable|string|max:255',
-                'opening_time' => 'nullable|string|max:255',
-                'working_days' => 'nullable|string|max:255',
-                'contact' => 'nullable|string|max:255',
-                'description' => 'nullable|string',
-            ]);
-        }
+//        dd("thtaa it ",$request->hasFile('image'));
+//        // Handle image upload
+        if ($request->has('image')) {
+//        if ($request->file('image')) {
 
-//        dd($request->image);
-
-        if ($request->hasFile('image')) {
-            if ($business->image) {
-                Storage::disk('public')->delete('images/'.$business->image);
+            $file = $request->file('image');
+            $extension = $file->getClientOriginalExtension();
+            $filename = 'image_' . time() . '.' . $extension;
+            $path = $file->storeAs('images', $filename, 'public');
+            $validated['image'] = $path;
+            // Delete the old image if a new one is uploaded
+            if ($business->image && Storage::disk('public')->exists($business->image)) {
+                Storage::disk('public')->delete($business->image);
             }
-            $validated['image'] = $request->file('image')->store('images', 'public');
         }
 
-        if ($request->hasFile('logo')) {
-            if ($business->logo) {
-                Storage::disk('public')->delete('logos/'.$business->logo);
+        // Handle logo upload
+        if ($request->has('logo')) {
+//        if ($request->file('logo')) {
+            // Delete the old logo if a new one is uploaded
+            if ($business->logo && Storage::disk('public')->exists($business->logo)) {
+                Storage::disk('public')->delete($business->logo);
             }
-            $validated['logo'] = $request->file('logo')->store('logos', 'public');
+            $file = $request->file('logo');
+            $extension = $file->getClientOriginalExtension();
+            $filename = 'logo_' . time() . '.' . $extension;
+            $path = $file->storeAs('logos', $filename, 'public');
+            $validated['logo'] = $path;
         }
 
-        $filtered = array_filter($validated, function ($value) {
-            return !is_null($value);
-        });
+//        dd($validated);
 
-        $business->update($filtered);
-//        $business->update($validated);
+//        Business::create($validated);
+        $business->update($validated);
 
-        return redirect()->route('list')->with('success', 'Business updated successfully');
+        return redirect()->route('list');
     }
 
     /**

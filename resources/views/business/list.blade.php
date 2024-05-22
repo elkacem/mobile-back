@@ -33,7 +33,7 @@
                         <div class="card">
                             <div class="card-body">
 
-                                <h4 class="card-title" style="text-align: right"><a href="{{ route('add') }}" class="btn btn-primary"> Ajouter utilisateur </a></h4>
+                                <h4 class="card-title" style="text-align: right"><a href="{{ route('add') }}" class="btn btn-primary"> Add Business </a></h4>
 
                                 <div class="table-responsive">
                                     <table class="table table-editable table-nowrap align-middle table-edits">
