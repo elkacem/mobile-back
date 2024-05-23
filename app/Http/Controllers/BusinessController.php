@@ -178,6 +178,17 @@ class BusinessController extends Controller
     public function destroy($id)
     {
         $business = Business::with('subcategory.category')->findOrFail($id);
+
+        // Delete the image file if it exists
+        if ($business->image && Storage::disk('public')->exists($business->image)) {
+            Storage::disk('public')->delete($business->image);
+        }
+
+        // Delete the logo file if it exists
+        if ($business->logo && Storage::disk('public')->exists($business->logo)) {
+            Storage::disk('public')->delete($business->logo);
+        }
+
         // Delete the business record from the database
         $business->delete();
 
