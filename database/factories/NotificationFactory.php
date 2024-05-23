@@ -17,9 +17,8 @@ class NotificationFactory extends Factory
     public function definition(): array
     {
         return [
-            'notification' => $this-> faker-> sentence(5),
+            'notification' => $this-> faker->sentence(5),
             'status' => $this->faker->randomElement([1, 0]),
-
         ];
     }
 }

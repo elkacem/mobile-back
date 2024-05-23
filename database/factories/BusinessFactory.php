@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Subcategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,19 +18,18 @@ class BusinessFactory extends Factory
     public function definition(): array
     {
         return [
-            $table->id(); // This creates an unsignedBigInteger
-        $table->string('name');
-        $table->string('slogan');
-        $table->foreignId('subcategory_id')->constrained()->onDelete('cascade');
-        $table->string('image')->nullable();
-        $table->string('logo')->nullable();
-        $table->string('location')->nullable();
-        $table->string('opening_time')->nullable();
-        $table->string('working_days')->nullable();
-        $table->string('contact')->nullable();
-        $table->text('description')->nullable();
-        $table->timestamps();
-        'name' => $this->faker->name();
+        'name' => $this->faker->name(),
+        'slogan' => $this->faker->text(10),
+        'subcategory_id' => function() {
+            return Subcategory::inRandomOrder()->first()->id;
+        },
+        'image' => 'https://i.pravatar.cc/300?img='.$this->faker->numberBetween(1,70),
+        'logo' => 'https://i.pravatar.cc/150?img='.$this->faker->numberBetween(1,70),
+        'location' => $this->faker->text(10),
+        'opening_time' => $this->faker->time,
+        'working_days' => $this->faker->text(5),
+        'contact' => $this->faker->phoneNumber,
+        'description' => $this->faker->text(50),
         ];
     }
 }
