@@ -19,6 +19,6 @@ Route::get('/notifications', function () {
 });
 
 Route::get('/business', function () {
-    $businesses = Business::all()-;
+    $businesses = Business::all();
     return $businesses;
 });

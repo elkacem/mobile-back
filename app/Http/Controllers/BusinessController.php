@@ -21,6 +21,9 @@ class BusinessController extends Controller
 //        return view('business.list');
 
         $businesses = Business::with('subcategory.category')->get(); // Retrieve all businesses from the database
+
+//        dd($businesses);
+
         return view('business.list', compact('businesses')); // Pass the businesses data to the view
 
     }

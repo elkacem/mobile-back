@@ -103,6 +103,12 @@ class NotificationController extends Controller
     public function toggleStatus(Request $request, $id)
     {
         $notification = Notification::find($id);
+
+        // If activating the current notification, deactivate all others
+        if ($request->status == 1) {
+            Notification::where('id', '!=', $id)->update(['status' => 0]);
+        }
+
         $notification->status = $request->status;
         $notification->save();
 
