@@ -64,6 +64,10 @@ Route::get('/business', function () {
         $validatedBusiness['subcategory_name'] = $business->subcategory->name;
         $validatedBusiness['category_name'] = $business->subcategory->category->name;
 
+        // Ensure the image and logo URLs are complete
+        $validatedBusiness['image'] = url('storage/' . $business->image);
+        $validatedBusiness['logo'] = url('storage/' . $business->logo);
+
         $validatedBusinesses[] = $validatedBusiness;
 
 //        $validatedBusinesses[] = $validator->validated();
