@@ -76,6 +76,101 @@ Route::get('/business', function () {
     return response()->json($validatedBusinesses, 200);
 });
 
+Route::get('/business_fr', function () {
+    $businesses = Business::from('businesses_fr')->get();
+    $validatedBusinesses = [];
+
+    foreach ($businesses as $business) {
+        $validator = Validator::make($business->only([
+            'id',
+            'name',
+            'slogan',
+            'subcategory_id',
+            'image',
+            'logo',
+            'location',
+            'opening_time',
+            'working_days',
+            'contact',
+            'description'
+        ]), [
+            'id' => 'required|integer',
+            'name' => 'required|string',
+            'slogan' => 'nullable|string',
+            'subcategory_id' => 'required|integer',
+            'image' => 'nullable|string',
+            'logo' => 'nullable|string',
+            'location' => 'nullable|string',
+            'opening_time' => 'nullable|string',
+            'working_days' => 'nullable|string',
+            'contact' => 'nullable|string',
+            'description' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors(), 'business_id' => $business->id], 400);
+        }
+
+        $validatedBusiness = $validator->validated();
+        $validatedBusiness['subcategory_name'] = $business->subcategory->name;
+        $validatedBusiness['category_name'] = $business->subcategory->category->name;
+
+        $validatedBusiness['image'] = url('storage/' . $business->image);
+        $validatedBusiness['logo'] = url('storage/' . $business->logo);
+
+        $validatedBusinesses[] = $validatedBusiness;
+    }
+
+    return response()->json($validatedBusinesses, 200);
+});
+
+Route::get('/business_ar', function () {
+    $businesses = Business::from('businesses_ar')->get();
+    $validatedBusinesses = [];
+
+    foreach ($businesses as $business) {
+        $validator = Validator::make($business->only([
+            'id',
+            'name',
+            'slogan',
+            'subcategory_id',
+            'image',
+            'logo',
+            'location',
+            'opening_time',
+            'working_days',
+            'contact',
+            'description'
+        ]), [
+            'id' => 'required|integer',
+            'name' => 'required|string',
+            'slogan' => 'nullable|string',
+            'subcategory_id' => 'required|integer',
+            'image' => 'nullable|string',
+            'logo' => 'nullable|string',
+            'location' => 'nullable|string',
+            'opening_time' => 'nullable|string',
+            'working_days' => 'nullable|string',
+            'contact' => 'nullable|string',
+            'description' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors(), 'business_id' => $business->id], 400);
+        }
+
+        $validatedBusiness = $validator->validated();
+        $validatedBusiness['subcategory_name'] = $business->subcategory->name;
+        $validatedBusiness['category_name'] = $business->subcategory->category->name;
+
+        $validatedBusiness['image'] = url('storage/' . $business->image);
+        $validatedBusiness['logo'] = url('storage/' . $business->logo);
+
+        $validatedBusinesses[] = $validatedBusiness;
+    }
+
+    return response()->json($validatedBusinesses, 200);
+});
 
 
 

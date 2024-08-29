@@ -41,7 +41,8 @@ class DatabaseSeeder extends Seeder
 //        ]);
         User::factory()->create([
             'name' => 'belo',
-            'email' => 'belo@mail.com',
+            'email' => 'belkacemyesse@gmail.com', // Updated email
+            'password' => bcrypt('mecakleb_aisgs2024***@@@') // Added password
         ]);
         $this->call(NotificationSeeder::class);
         $this->call(CategorySeeder::class);
