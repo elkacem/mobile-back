@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Notification;
 use App\Models\Business;
+use Illuminate\Support\Facades\Http;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -172,5 +173,52 @@ Route::get('/business_ar', function () {
     return response()->json($validatedBusinesses, 200);
 });
 
+//Route::post('/list_trains_gares', function (Request $request) {
+//    // The request body in JSON format
+//    $payload = [
+//        'token' => 'h0y06ecuky6m3v126yshlly5',
+//        'id_gare_depart' => $request->input('id_gare_depart', '37'), // Default: 37
+//        'id_gare_arrive' => $request->input('id_gare_arrive', '560'), // Default: 560
+//        'datetime' => $request->input('datetime', '2024-09-12 17:00:00'), // Default: 2024-09-12 17:00:00
+//        'post_24_hours' => $request->input('post_24_hours', '24h'), // Default: 24h
+//    ];
+//
+//    // Make the POST request
+//    $response = Http::post('https://www.sntf.dz/index.php?option=com_sntf&task=list_trains_gares', $payload);
+//
+//    // Handle the response from the external API
+//    if ($response->successful()) {
+//        return response()->json($response->json());
+//    }
+//
+//    return response()->json(['error' => 'Unable to retrieve train data'], $response->status());
+//});
 
+Route::post('/list_trains_gares', function (Request $request) {
+    // Validate incoming request data
+    $request->validate([
+        'id_gare_depart' => 'required|integer',
+        'id_gare_arrive' => 'required|integer',
+        'datetime' => 'required|date_format:Y-m-d H:i:s',
+    ]);
+
+    // Build the request body for the external API
+    $payload = [
+        'token' => 'h0y06ecuky6m3v126yshlly5', // Static token
+        'id_gare_depart' => $request->input('id_gare_depart'),
+        'id_gare_arrive' => $request->input('id_gare_arrive'),
+        'datetime' => $request->input('datetime'),
+        'post_24_hours' => '24h', // Static value
+    ];
+
+    // Make the POST request to the external API
+    $response = Http::post('https://www.sntf.dz/index.php?option=com_sntf&task=list_trains_gares', $payload);
+
+    // Handle the response
+    if ($response->successful()) {
+        return response()->json($response->json());
+    }
+
+    return response()->json(['error' => 'Unable to retrieve train data'], $response->status());
+});
 
